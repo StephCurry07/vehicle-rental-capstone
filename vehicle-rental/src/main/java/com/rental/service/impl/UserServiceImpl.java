@@ -1,15 +1,21 @@
 package com.rental.service.impl;
 
-import com.rental.entity.User;
-import com.rental.repository.UserRepository;
-import com.rental.service.UserService;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.rental.entity.User;
+import com.rental.repository.UserRepository;
+import com.rental.service.HashingService;
+import com.rental.service.UserService;
+
 @Service
 public class UserServiceImpl implements UserService {
+
+	@Autowired
+    private HashingService passwordEncoder;
 
     private final UserRepository userRepository;
 
@@ -28,8 +34,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public User createUser(String username, String email, String password) {
+        String encodedPassword = passwordEncoder.encrypt(password);
+
+        User newUser = new User(username, email, encodedPassword);
+
+        return userRepository.save(newUser);
     }
 
     @Override
@@ -45,4 +55,10 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(String id) {
         userRepository.deleteById(id);
     }
+
+//	@Override
+//	public User createUser(User user) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 }
