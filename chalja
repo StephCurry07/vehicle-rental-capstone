@@ -1,0 +1,248 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+Oracle Java Technologies | Oracle
+Java can help reduce costs, drive innovation, & improve application services; the #1 programming language for IoT, enterprise architecture, and cloud computing.
+ 
+<html>
+<head>
+    <title>Payment Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+ 
+        .container {
+            display: flex;
+            background: #1e1e1e;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1000px;
+            gap: 2rem;
+        }
+ 
+        .payment-section, .booking-section {
+            flex: 1;
+            padding: 1rem;
+        }
+ 
+        .payment-section {
+            border-right: 1px solid #444;
+        }
+ 
+        .booking-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+ 
+        h2 {
+            margin-bottom: 1rem;
+            color: #ff4b5c;
+        }
+ 
+        .payment-method {
+            margin-bottom: 1.5rem;
+        }
+ 
+        .payment-method label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+ 
+        .payment-method input[type="radio"] {
+            margin-right: 0.5rem;
+        }
+ 
+        .card-details, .wallet-details {
+            display: none;
+            margin-top: 1rem;
+        }
+ 
+        .card-details input, .wallet-details input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 1rem;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: #2c2c2c;
+            color: #ffffff;
+            outline: none;
+        }
+ 
+        .wallet-details p {
+            margin-bottom: 1rem;
+        }
+ 
+        .wallet-details button {
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            background: linear-gradient(135deg, #ff4b5c, #d33f49);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+ 
+        .wallet-details button:hover {
+            background: linear-gradient(135deg, #d33f49, #a32a34);
+        }
+ 
+        .booking-details {
+            background: #2c2c2c;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+ 
+        .booking-details p {
+            margin: 0.5rem 0;
+        }
+ 
+        .error {
+            color: #ff4b5c;
+            margin-bottom: 1rem;
+        }
+    </style>
+    <script>
+        function showPaymentMethod(method) {
+            if (method === 'card') {
+                document.getElementById('card-details').style.display = 'block';
+                document.getElementById('wallet-details').style.display = 'none';
+            } else if (method === 'wallet') {
+                document.getElementById('wallet-details').style.display = 'block';
+                document.getElementById('card-details').style.display = 'none';
+            }
+        }
+ 
+        // Real-time validation for card number
+        function validateCardNumber() {
+            const cardNumber = document.getElementById("cardNumber").value;
+            const cardNumberError = document.getElementById("cardNumberError");
+            if (!/^\d{16}$/.test(cardNumber)) {
+                cardNumberError.textContent = "Invalid card number. Must be 16 digits.";
+                return false;
+            } else {
+                cardNumberError.textContent = "";
+                return true;
+            }
+        }
+ 
+        // Real-time validation for expiry date
+        function validateExpiryDate() {
+            const expiryDate = document.getElementById("expiryDate").value;
+            const expiryDateError = document.getElementById("expiryDateError");
+            if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
+                expiryDateError.textContent = "Invalid expiry date. Must be in MM/YY format.";
+                return false;
+            } else {
+                expiryDateError.textContent = "";
+                return true;
+            }
+        }
+ 
+        // Real-time validation for CVV
+        function validateCVV() {
+            const cvv = document.getElementById("cvv").value;
+            const cvvError = document.getElementById("cvvError");
+            if (!/^\d{3}$/.test(cvv)) {
+                cvvError.textContent = "Invalid CVV. Must be 3 digits.";
+                return false;
+            } else {
+                cvvError.textContent = "";
+                return true;
+            }
+        }
+ 
+        // Card validation script
+        function validateForm(event) {
+            if (!validateCardNumber() || !validateExpiryDate() || !validateCVV()) {
+                event.preventDefault(); // Prevent form submission if validation fails
+                return false;
+            }
+            return true;
+        }
+ 
+        // Attach event listeners for input validation
+        window.addEventListener('load', () => {
+            document.getElementById("cardNumber").addEventListener("input", validateCardNumber);
+            document.getElementById("expiryDate").addEventListener("input", validateExpiryDate);
+            document.getElementById("cvv").addEventListener("input", validateCVV);
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Payment Section -->
+        <div class="payment-section">
+            <h2>Payment Options</h2>
+ 
+            <!-- Payment Method Selection -->
+            <div class="payment-method">
+                <label>
+                    <input type="radio" name="paymentMethod" value="card" onclick="showPaymentMethod('card')">
+                    Pay with Card
+                </label>
+                <label>
+                    <input type="radio" name="paymentMethod" value="wallet" onclick="showPaymentMethod('wallet')">
+                    Pay with Wallet
+                </label>
+            </div>
+ 
+            <!-- Card Payment Details -->
+            <form id="cardForm" action="${pageContext.request.contextPath}/payment/process" method="post" onsubmit="return validateForm(event)">
+                <div id="card-details" class="card-details">
+                    <input type="text" id="cardNumber" name="cardNumber" placeholder="Card Number" required>
+                    <div id="cardNumberError" class="error"></div>
+                    <input type="text" id="expiryDate" name="expiryDate" placeholder="Expiry Date (MM/YY)" required>
+                    <div id="expiryDateError" class="error"></div>
+                    <input type="text" id="cvv" name="cvv" placeholder="CVV" required>
+                    <div id="cvvError" class="error"></div>
+                    <div id="cardSpinner" class="loading-spinner"></div>
+                </div>
+                <input type="hidden" name="vehicleId" value="${vehicle.id}">
+                <input type="hidden" name="duration" value="${duration}">
+                <input type="hidden" name="paymentMode" value="card">
+                <button type="submit">
+                    Confirm Payment
+                </button>
+            </form>
+ 
+            <!-- Wallet Payment Details -->
+            <div id="wallet-details" class="wallet-details">
+                <p>Your Current Balance: $${user.balance}</p>
+                <p>Amount to Transfer: $${totalCost}</p>
+                <button onclick="processWalletPayment()">Transfer Funds</button>
+            </div>
+ 
+            <!-- Error Message -->
+            <c:if test="${not empty error}">
+                <div class="error">${error}</div>
+            </c:if>
+        </div>
+ 
+        <!-- Booking Section -->
+        <div class="booking-section">
+            <h2>Booking Details</h2>
+            <div class="booking-details">
+                <p><strong>Vehicle:</strong> ${vehicle.vehicleName}</p>
+                <p><strong>Type:</strong> ${vehicle.vehicleType}</p>
+                <p><strong>Duration:</strong> ${duration} hours</p>
+                <p><strong>Total Cost:</strong> $${totalCost}</p>
+                <p><strong>User:</strong> ${user.name}</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+ 
+ 
